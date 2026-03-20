@@ -1,0 +1,11 @@
+/.env
+/credentials.json
+/token.pickle
+/claim_token.py
+/categorizer_model.pkl
+/__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
+.env
