@@ -6,7 +6,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import pickle
 
-# Google Sheets API scope - what permissions we need
+# Google Sheets API scope
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 class ExpenseTracker:
@@ -15,7 +15,7 @@ class ExpenseTracker:
         Initialize the expense tracker
         
         Args:
-            spreadsheet_id: The ID from your Google Sheets URL
+            spreadsheet_id: The ID from Google Sheets URL
                            (the long string between /d/ and /edit)
         """
         self.spreadsheet_id = spreadsheet_id
@@ -27,12 +27,12 @@ class ExpenseTracker:
         
         This will:
         1. Check if we have saved credentials (token.pickle)
-        2. If not, open a browser for you to login
+        2. If not, open a browser for login
         3. Save credentials for future use
         """
         creds = None
         
-        # Check if we already have credentials saved
+        # Check if existing credentials saved
         if os.path.exists('token.pickle'):
             with open('token.pickle', 'rb') as token:
                 creds = pickle.load(token)
@@ -42,7 +42,7 @@ class ExpenseTracker:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                # This requires 'credentials.json' file from Google Cloud
+                # 'credentials.json' file from Google Cloud
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'credentials.json', SCOPES)
                 creds = flow.run_local_server(port=0)
@@ -53,7 +53,7 @@ class ExpenseTracker:
         
         # Build the service object for interacting with Google Sheets
         self.service = build('sheets', 'v4', credentials=creds)
-        print("✓ Successfully authenticated with Google Sheets")
+        print(" Successfully authenticated with Google Sheets")
     
     def read_transactions(self, range_name='Sheet1!A:E'):
         """
@@ -63,7 +63,7 @@ class ExpenseTracker:
             range_name: The range to read (e.g., 'Sheet1!A:E' means columns A-E)
         
         Returns:
-            pandas DataFrame with your transaction data
+            pandas DataFrame with transaction data
         """
         if not self.service:
             raise Exception("Must authenticate first!")
@@ -115,30 +115,4 @@ class ExpenseTracker:
             body=body
         ).execute()
         
-        print(f"✓ Updated {result.get('updatedCells')} cells")
-
-
-# Example usage
-if __name__ == "__main__":
-    # STEP 1: Replace this with your actual spreadsheet ID
-    # Find it in your Google Sheets URL:
-    # https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit
-    SPREADSHEET_ID = "1eedF-Y4fgOzbA3tpQaT3VT_W54iZbUjVLZXbyOwx_TU"
-    
-    # Create tracker instance
-    tracker = ExpenseTracker(SPREADSHEET_ID)
-    
-    # Authenticate (first time will open browser)
-    tracker.authenticate()
-    
-    # Read your existing data
-    # Adjust the range to match your sheet structure
-    # Format: 'SheetName!StartColumn:EndColumn'
-    df = tracker.read_transactions('Transaction Log!A:D')
-    
-    if df is not None:
-        print("\nFirst few rows of your data:")
-        print(df.head())
-        
-        # Show what columns you have
-        print("\nYour columns:", df.columns.tolist())
+        print(f" Updated {result.get('updatedCells')} cells")

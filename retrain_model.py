@@ -10,9 +10,9 @@ from expense_tracker import ExpenseTracker
 load_dotenv()
 
 def retrain():
-    print("🧠 STARTING MODEL RETRAINING...")
+    print(" STARTING MODEL RETRAINING...")
     
-    # 1. Fetch the "Ground Truth" from Google Sheets
+    # 1. Fetch data from Google Sheets
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
     tracker = ExpenseTracker(SPREADSHEET_ID)
     tracker.authenticate()
@@ -21,7 +21,7 @@ def retrain():
     df = tracker.read_transactions('Transaction Log!A:D')
     
     if df is None or df.empty:
-        print("❌ No data found in sheet to train on.")
+        print(" No data found in sheet to train on.")
         return
 
     # Clean the data
@@ -36,7 +36,7 @@ def retrain():
     X = df['Description']
     y = df['Category']
     
-    # --- FIX: GET THE LIST OF UNIQUE CATEGORIES ---
+    # --- GET THE LIST OF UNIQUE CATEGORIES ---
     unique_categories = y.unique().tolist()
     
     print(f"   Training on {len(df)} examples with {len(unique_categories)} categories...")
@@ -54,13 +54,13 @@ def retrain():
     model_data = {
         'vectorizer': vectorizer,
         'model': classifier,
-        'categories': unique_categories  # <--- THIS WAS THE MISSING KEY
+        'categories': unique_categories
     }
     
     with open('categorizer_model.pkl', 'wb') as f:
         pickle.dump(model_data, f)
         
-    print("✅ SUCCESS! New model saved to 'categorizer_model.pkl'")
+    print(" SUCCESS! New model saved to 'categorizer_model.pkl'")
 
 if __name__ == "__main__":
     retrain()

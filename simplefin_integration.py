@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import traceback
 
-# Load your other modules
+# Load other modules
 from categorizer_system import TransactionCategorizer
 from expense_tracker import ExpenseTracker
 
@@ -17,7 +17,7 @@ class SimpleFinConnector:
     def __init__(self):
         self.access_url = os.getenv('SIMPLEFIN_URL')
         if not self.access_url:
-            raise Exception("❌ Missing SIMPLEFIN_URL in .env file")
+            raise Exception(" Missing SIMPLEFIN_URL in .env file")
         
         # AUTO-FIX: Ensure URL ends in /accounts
         if not self.access_url.endswith('/accounts'):
@@ -28,7 +28,7 @@ class SimpleFinConnector:
         Fetches transactions from SimpleFin.
         start_date_str: 'YYYY-MM-DD' (Defaults to 90 days ago if None)
         """
-        print(f"📥 Fetching data from SimpleFin...")
+        print(f" Fetching data from SimpleFin...")
         
         # 1. Prepare Parameters
         params = {}
@@ -48,7 +48,7 @@ class SimpleFinConnector:
             response = requests.get(self.access_url, params=params)
             response.raise_for_status()
         except Exception as e:
-            print(f"❌ Error connecting to SimpleFin: {e}")
+            print(f" Error connecting to SimpleFin: {e}")
             return pd.DataFrame()
 
         data = response.json()
@@ -58,7 +58,7 @@ class SimpleFinConnector:
         
         # Check for empty accounts
         if not data.get('accounts'):
-            print("⚠ Connected, but no accounts returned. Check SimpleFin portal.")
+            print(" Connected, but no accounts returned. Check SimpleFin portal.")
             return pd.DataFrame()
 
         for account in data.get('accounts', []):
@@ -90,7 +90,7 @@ class SimpleFinConnector:
         # Sort by date (newest first)
         df = df.sort_values('Date', ascending=False)
         
-        print(f"✓ Retrieved {len(df)} transactions total")
+        print(f" Retrieved {len(df)} transactions total")
         return df
 
 # Main Execution Flow
@@ -118,13 +118,13 @@ if __name__ == "__main__":
     
     categorizer = TransactionCategorizer()
     if not categorizer.load_model():
-        print("⚠ No trained model found. Running simple rules only.")
+        print(" No trained model found. Running simple rules only.")
     
     for idx, row in transactions.iterrows():
         category = categorizer.predict(row['Amount'], row['Description'])
         transactions.at[idx, 'Category'] = category
         
-    print(f"✓ Categorized {len(transactions)} items")
+    print(f" Categorized {len(transactions)} items")
     
     # --- STEP 3: UPDATE GOOGLE SHEETS ---
     print("\n" + "="*60)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
     if not SPREADSHEET_ID:
-        print("❌ Error: SPREADSHEET_ID not found in .env")
+        print(" Error: SPREADSHEET_ID not found in .env")
         exit()
         
     tracker = ExpenseTracker(SPREADSHEET_ID)
@@ -189,8 +189,8 @@ if __name__ == "__main__":
         
         # Write to sheets
         tracker.write_transactions(combined, 'Transaction Log!A1')
-        print("✓ Google Sheet Updated Successfully!")
+        print(" Google Sheet Updated Successfully!")
             
     except Exception as e:
-        print(f"❌ UPDATE FAILED: {e}")
+        print(f" UPDATE FAILED: {e}")
         traceback.print_exc()

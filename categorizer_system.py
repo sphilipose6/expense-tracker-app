@@ -1,10 +1,3 @@
-"""
-Automated Expense Tracker - Phase 2: Smart Categorization System
-This adds intelligent categorization using a hybrid approach:
-1. Rule-based: Positive amounts = "Income"
-2. Machine Learning: Learns patterns from your historical data
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -19,7 +12,7 @@ class TransactionCategorizer:
     """
     
     def __init__(self):
-        # Your categories
+        # Categories
         self.categories = [
             'Travel',
             'Hotels', 
@@ -123,7 +116,7 @@ class TransactionCategorizer:
     
     def train(self, df):
         """
-        Train the ML model on your historical data
+        Train the ML model on historical data
         
         Args:
             df: DataFrame with columns ['Description', 'Amount', 'Category']
@@ -170,14 +163,14 @@ class TransactionCategorizer:
     
     def _show_learning_summary(self, train_data):
         """Show what patterns the model found"""
-        print("\n📊 Learning Summary:")
+        print("\n Learning Summary:")
         print("-" * 50)
         
         category_counts = train_data['Category'].value_counts()
         for category, count in category_counts.items():
             print(f"  {category}: {count} examples")
         
-        print("\n💡 Top words learned for each category:")
+        print("\n Top words learned for each category:")
         
         # Get feature names (words)
         feature_names = self.vectorizer.get_feature_names_out()
@@ -279,7 +272,7 @@ class TransactionCategorizer:
         with open(filepath, 'wb') as f:
             pickle.dump(model_data, f)
         
-        print(f"✓ Model saved to {filepath}")
+        print(f" Model saved to {filepath}")
     
     def load_model(self, filepath='categorizer_model.pkl'):
         """Load a previously trained model"""
@@ -292,99 +285,8 @@ class TransactionCategorizer:
             self.categories = model_data['categories']
             self.is_trained = True
             
-            print(f"✓ Model loaded from {filepath}")
+            print(f" Model loaded from {filepath}")
             return True
         except FileNotFoundError:
-            print(f"⚠ No saved model found at {filepath}")
+            print(f" No saved model found at {filepath}")
             return False
-
-
-# Example usage
-if __name__ == "__main__":
-    from expense_tracker import ExpenseTracker
-    
-    # STEP 1: Load your existing data
-    SPREADSHEET_ID = "1eedF-Y4fgOzbA3tpQaT3VT_W54iZbUjVLZXbyOwx_TU"  # Replace with your ID
-    
-    tracker = ExpenseTracker(SPREADSHEET_ID)
-    tracker.authenticate()
-    df = tracker.read_transactions('Transaction Log!A:D')
-    
-    if df is None or len(df) == 0:
-        print("No data found!")
-        exit()
-    
-    print(f"\n📊 Loaded {len(df)} transactions")
-    print("\nFirst few transactions:")
-    print(df.head())
-    
-    # STEP 2: Train the categorizer
-    print("\n" + "="*60)
-    print("TRAINING CATEGORIZER")
-    print("="*60)
-    
-    categorizer = TransactionCategorizer()
-    categorizer.train(df)
-    
-    # STEP 3: Test on some examples
-    print("\n" + "="*60)
-    print("TESTING PREDICTIONS")
-    print("="*60)
-    
-    # Test on a few transactions
-    test_examples = [
-        (100.50, "Paycheck Deposit"),
-        (-45.00, "United Airlines Flight"),
-        (-120.00, "Marriott Hotel NYC"),
-        (-75.00, "Competition Entry Fee"),
-    ]
-    
-    print("\nTest predictions:")
-    for amount, desc in test_examples:
-        pred = categorizer.predict(amount, desc)
-        print(f"  ${amount:>8.2f} | {desc:30s} → {pred}")
-    
-    # STEP 4: Categorize all uncategorized transactions
-    print("\n" + "="*60)
-    print("FINDING UNCATEGORIZED TRANSACTIONS")
-    print("="*60)
-    
-    # Find rows with empty or missing categories
-    uncategorized = df[df['Category'].isna() | (df['Category'] == '')]
-    
-    if len(uncategorized) > 0:
-        print(f"\nFound {len(uncategorized)} uncategorized transactions")
-        print("\nGenerating predictions...")
-        
-        # Get predictions
-        categorized = categorizer.categorize_transactions(uncategorized)
-        
-        print("\nPredictions:")
-        print(categorized[['Description', 'Amount', 'PredictedCategory', 'Confidence']])
-        
-        # Ask if user wants to update the sheet
-        response = input("\n📝 Update Google Sheet with these predictions? (yes/no): ")
-        
-        if response.lower() in ['yes', 'y']:
-            # Update the original dataframe
-            for idx in uncategorized.index:
-                df.at[idx, 'Category'] = categorized.loc[idx, 'PredictedCategory']
-            
-            # Write back to sheet
-            tracker.write_transactions(df, 'Transaction Log!A1')
-            print("✓ Google Sheet updated!")
-        else:
-            print("Skipped updating sheet")
-    else:
-        print("\n✓ All transactions already have categories!")
-    
-    # STEP 5: Save the model for future use
-    categorizer.save_model()
-    
-    print("\n" + "="*60)
-    print("DONE! 🎉")
-    print("="*60)
-    print("\nNext time you run this, the model will:")
-    print("  1. Load your trained model")
-    print("  2. Automatically categorize new transactions")
-    print("  3. Update your Google Sheet")
