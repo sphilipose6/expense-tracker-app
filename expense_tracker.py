@@ -19,7 +19,7 @@ class ExpenseTracker:
                            (the long string between /d/ and /edit)
         """
         self.spreadsheet_id = spreadsheet_id
-        self.service = None
+        self.service = None # Intentionally set to None until we authenticate
         
     def authenticate(self):
         """
@@ -32,20 +32,20 @@ class ExpenseTracker:
         """
         creds = None
         
-        # Check if existing credentials saved
+        # Check if existing credentials saved, State 1: load saved creds
         if os.path.exists('token.pickle'):
             with open('token.pickle', 'rb') as token:
-                creds = pickle.load(token)
+                creds = pickle.load(token) # State 1: load saved creds
         
-        # If no valid credentials, get new ones
+        # If no valid credentials, get new ones 
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
+                creds.refresh(Request()) # State 2: refresh or login
             else:
                 # 'credentials.json' file from Google Cloud
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'credentials.json', SCOPES)
-                creds = flow.run_local_server(port=0)
+                creds = flow.run_local_server(port=0) # State 3: browser login, port 0 allows all free ports
             
             # Save credentials for next time
             with open('token.pickle', 'wb') as token:
@@ -84,7 +84,7 @@ class ExpenseTracker:
         
         # Convert to pandas DataFrame (easier to work with)
         # First row is headers, rest is data
-        df = pd.DataFrame(values[1:], columns=values[0])
+        df = pd.DataFrame(values[1:], columns=values[0]) # Header Row = column names, Data Rows = values[1:]
         print(f"✓ Read {len(df)} transactions from Google Sheets")
         
         return df

@@ -37,7 +37,8 @@ def find_ghosts():
     )
     
     # Filter for rows that are "Left_only" (In Sheet, but not in Bank)
-    ghosts = merged[merged['_merge'] == 'left_only']
+    # Left dataframe is sheet_df, right dataframe is bank_df
+    ghosts = merged[merged['_merge'] == 'left_only'] 
     
     print(f"\n FOUND {len(ghosts)} SUSPICIOUS TRANSACTIONS:")
     print("   (These exist in your Sheet, but the Bank doesn't have a matching Date+Amount)")

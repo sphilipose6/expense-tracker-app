@@ -32,7 +32,7 @@ def retrain():
         print(f"⚠ Not enough data yet ({len(df)} rows). Categorize more items first!")
         return
 
-    # 2. Prepare Training Data
+    # 2. Prepare Training Data / ML Pipeline
     X = df['Description']
     y = df['Category']
     
@@ -57,7 +57,7 @@ def retrain():
         'categories': unique_categories
     }
     
-    with open('categorizer_model.pkl', 'wb') as f:
+    with open('categorizer_model.pkl', 'wb') as f: # wb because Pickle uses bytes
         pickle.dump(model_data, f)
         
     print(" SUCCESS! New model saved to 'categorizer_model.pkl'")
