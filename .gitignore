@@ -1,11 +1,17 @@
-/.env
-/credentials.json
-/token.pickle
-/claim_token.py
-/categorizer_model.pkl
-/__pycache__/
+# Secrets & credentials
+.env
+credentials.json
+token.pickle
+claim_token.py
+
+# Trained ML model
+models/categorizer_model.pkl
+
+# Python cache
+__pycache__/
 *.py[cod]
+
+# OS / IDE
 .DS_Store
 .idea/
 .vscode/
-.env
